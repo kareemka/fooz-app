@@ -4,7 +4,8 @@ import Container from "@/components/ui/Container";
 import AnimatedBackground from "@/components/ui/AnimatedBackground";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useCallback } from "react";
-import { gql, useQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import { cn } from "@/lib/utils";
 import { CONTACT_INFO } from "@/lib/constants";
 
@@ -32,7 +33,7 @@ const FAQPage = () => {
     const [activeIndex, setActiveIndex] = useState<number | null>(0);
     const [searchTerm, setSearchTerm] = useState("");
 
-    const { data, loading, error } = useQuery(GET_FAQS, {
+    const { data, loading, error } = useQuery<{ faqs: { items: Faq[] } }>(GET_FAQS, {
         variables: { isActive: true }
     });
 

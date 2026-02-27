@@ -24,6 +24,7 @@ export const GET_PRODUCT_BY_SLUG = gql`
       mainImage
       galleryImages
       glbFileUrl
+      isActive
       category {
         id
         slug

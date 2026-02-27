@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Container from "@/components/ui/Container";
 import ProductCard from "@/components/product/ProductCard";
 import { Product, Category } from "@/lib/products";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import { GET_CATEGORIES, GET_PRODUCTS } from "@/lib/graphql/queries";
 import { motion } from "framer-motion";
 import Skeleton from "@/components/ui/Skeleton";
@@ -24,7 +24,7 @@ const ProductsListingContent = () => {
     const activeCategorySlug = searchParams.get("category");
     const searchQuery = searchParams.get("search") || "";
 
-    const { data: categoryData } = useQuery(GET_CATEGORIES);
+    const { data: categoryData } = useQuery<{ categories: { items: Category[] } }>(GET_CATEGORIES);
 
     useEffect(() => {
         if (categoryData?.categories?.items) {

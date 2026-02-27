@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import { getImageUrl } from "@/lib/products";
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import { GET_PRODUCT_BY_SLUG } from "@/lib/graphql/queries";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -22,7 +22,7 @@ export default function ARViewerPage({ params }: { params: Promise<{ slug: strin
     const [currentUrl, setCurrentUrl] = useState("");
     const [mounted, setMounted] = useState(false);
 
-    const { data, loading: isLoading } = useQuery(GET_PRODUCT_BY_SLUG, {
+    const { data, loading: isLoading } = useQuery<{ productBySlug: { id: string; name: string; price: number; stock: number; slug: string; mainImage?: string; glbFileUrl?: string } }>(GET_PRODUCT_BY_SLUG, {
         variables: { slug },
         skip: !slug
     });

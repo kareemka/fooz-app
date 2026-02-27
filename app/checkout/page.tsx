@@ -5,7 +5,8 @@ import Button from "@/components/ui/Button";
 import { useCart } from "@/lib/store";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { gql, useMutation, useApolloClient } from "@apollo/client";
+import { gql } from "@apollo/client";
+import { useMutation, useApolloClient } from "@apollo/client/react";
 import { CURRENCY } from "@/lib/constants";
 
 const CREATE_ORDER = gql`
@@ -46,7 +47,7 @@ const CheckoutPage = () => {
     const [isValidating, setIsValidating] = useState(false);
     const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
-    const [createOrder, { loading }] = useMutation(CREATE_ORDER, {
+    const [createOrder, { loading }] = useMutation<{ createOrder: { id: string; orderNumber: string } }>(CREATE_ORDER, {
         onCompleted: () => {
             setIsOrdered(true);
             clearCart();
@@ -67,7 +68,7 @@ const CheckoutPage = () => {
         setCouponError('');
 
         try {
-            const { data } = await client.query({
+            const { data } = await client.query<{ validateCoupon: { isValid: boolean; discountAmount: number; message: string } }>({
                 query: VALIDATE_COUPON,
                 variables: {
                     code: couponCode,
@@ -75,6 +76,8 @@ const CheckoutPage = () => {
                 },
                 fetchPolicy: 'no-cache'
             });
+
+            if (!data) return;
 
             if (data.validateCoupon.isValid) {
                 setAppliedCoupon({

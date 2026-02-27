@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import { GET_CATEGORIES } from "@/lib/graphql/queries";
 import Container from "@/components/ui/Container";
 import Link from "next/link";
@@ -13,7 +13,7 @@ import React from "react";
 import styles from "./Categories.module.css";
 
 const Categories = () => {
-    const { data, loading: isLoading } = useQuery(GET_CATEGORIES);
+    const { data, loading: isLoading } = useQuery<{ categories: { items: Category[] } }>(GET_CATEGORIES);
     const categories: Category[] = data?.categories?.items || [];
     const [activeIndex, setActiveIndex] = useState(0);
     const trackRef = useRef<HTMLDivElement>(null);

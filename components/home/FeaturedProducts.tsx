@@ -2,7 +2,7 @@
 
 
 
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import { GET_PRODUCTS } from "@/lib/graphql/queries";
 import Container from "@/components/ui/Container";
 import ProductCard from "@/components/product/ProductCard";
@@ -18,7 +18,7 @@ interface FeaturedProductsProps {
 }
 
 const FeaturedProducts = ({ title, category, take = 8, sortBy }: FeaturedProductsProps) => {
-    const { data, loading: isLoading, error } = useQuery(GET_PRODUCTS, {
+    const { data, loading: isLoading, error } = useQuery<{ products: { items: Product[], total: number } }>(GET_PRODUCTS, {
         variables: {
             category: category === "all" || !category ? undefined : category,
             take,

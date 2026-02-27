@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client/react";
 import { GET_ACTIVE_BANNERS } from "@/lib/graphql/queries";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation, EffectFade } from 'swiper/modules';

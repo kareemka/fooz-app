@@ -54,7 +54,9 @@ function makeClient() {
                     httpLink,
                 ])
                 : httpLink,
-        connectToDevTools: false,
+        devtools: {
+            enabled: false,
+        },
     });
 }
 

@@ -9,6 +9,8 @@ export const { getClient } = registerApolloClient(() => {
             uri: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || "http://localhost:3001/graphql",
             // You can add headers here if needed (e.g., for auth)
         }),
-        connectToDevTools: false,
+        devtools: {
+            enabled: false,
+        },
     });
 });
