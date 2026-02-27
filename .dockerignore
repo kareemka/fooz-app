@@ -1,0 +1,12 @@
+node_modules
+.next
+.env*
+.history
+*.rar
+audit_report*.txt
+docker-compose.yml
+Dockerfile
+.dockerignore
+.git
+.github
+README.md

@@ -1,0 +1,165 @@
+.categorySlider {
+    width: 100%;
+    padding: 2rem 0 1.5rem;
+}
+
+.catContainer {
+    margin-inline: auto;
+}
+
+.catTrack {
+    display: flex;
+    gap: 1.5rem;
+    padding-inline: 0;
+    padding-block: 1.5rem;
+    overflow-x: auto;
+    perspective: 1500px;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 50%;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.catTrack::-webkit-scrollbar {
+    display: none;
+}
+
+.catIndicators {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+}
+
+.dot {
+    width: 16px;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.15);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.dot.isActive {
+    background: linear-gradient(90deg, #B026FF, #FF007F);
+    transform: scaleX(1.5);
+}
+
+.catCard {
+    flex: 0 0 calc((100% - 6 * 1.5rem) / 5.8);
+    scroll-snap-align: center;
+    padding: 0;
+}
+
+.cardLink {
+    display: block;
+    text-decoration: none;
+}
+
+.catInner {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0.6;
+    transform-style: preserve-3d;
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.2, 1, 0.3, 1), filter 0.4s ease;
+}
+
+.catGlow {
+    content: "";
+    position: absolute;
+    inset: 0;
+    margin-inline: auto;
+    width: 90%;
+    height: 90%;
+    border-radius: 999px;
+    background: radial-gradient(circle, rgba(176, 38, 255, 0.25), transparent 70%);
+    opacity: 0;
+    filter: blur(18px);
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.catImgWrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.catImg {
+    width: 100%;
+    max-width: 140px; 
+    max-height: 140px; 
+    object-fit: contain;
+    display: block;
+    transition: transform 0.35s ease, filter 0.35s ease;
+}
+
+.catLabel {
+    font-family: "Cairo", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* Active state */
+.catInner.isActive {
+    opacity: 1;
+    transform: scale(1.15) rotateY(-15deg) rotateX(5deg) translateZ(20px);
+}
+
+.catInner.isActive .catGlow {
+    opacity: 1;
+}
+
+.catInner.isActive .catImg {
+    filter: brightness(1.2) drop-shadow(0 15px 30px rgba(176, 38, 255, 0.4));
+    transform: translateZ(50px) scale(1.1);
+    animation: themePulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes themePulse {
+    0% {
+        transform: scale(1);
+        filter: brightness(1.1) drop-shadow(0 10px 20px rgba(176, 38, 255, 0.3));
+    }
+    100% {
+        transform: scale(1.1);
+        filter: brightness(1.3) drop-shadow(0 20px 40px rgba(255, 0, 127, 0.5));
+    }
+}
+
+/* Hover effect for desktop (inactive items) */
+@media (hover: hover) {
+    .catInner:not(.isActive):hover {
+        opacity: 1;
+        transform: scale(1.05) rotateY(-10deg) rotateX(3deg);
+    }
+    
+    .catInner:not(.isActive):hover .catImg {
+        filter: brightness(1.2) drop-shadow(0 25px 35px rgba(0,0,0,0.85));
+        transform: translateZ(30px) scale(1.05);
+    }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .categorySlider {
+        padding: 1.4rem 0 1rem;
+    }
+    .catCard {
+        flex: 0 0 45%;
+    }
+    .catImg {
+        max-height: 120px;
+        max-width: 120px;
+    }
+    .catLabel {
+        font-size: 0.9rem;
+    }
+}
