@@ -9,7 +9,6 @@ import { useQuery } from "@apollo/client/react";
 import { GET_CATEGORIES, GET_PRODUCTS } from "@/lib/graphql/queries";
 import { motion } from "framer-motion";
 import Skeleton from "@/components/ui/Skeleton";
-import AnimatedBackground from "@/components/ui/AnimatedBackground";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
@@ -131,7 +130,6 @@ const ProductsListingContent = () => {
 
     return (
         <main className="min-h-screen bg-transparent relative overflow-hidden">
-            <AnimatedBackground />
             <section className="pt-32 md:pt-48 pb-24 relative z-10">
                 <Container>
                     {/* Header with search/sort */}
@@ -170,7 +168,7 @@ const ProductsListingContent = () => {
                                     <span>التصنيفات</span>
                                     <div className="w-2 h-2 bg-primary rounded-full" />
                                 </h3>
-                                <div className="flex flex-row-reverse md:flex-col gap-2 md:space-y-4 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+                                <div className="flex flex-row-reverse md:flex-col gap-2 md:space-y-4 overflow-x-auto pb-4 md:pb-0 custom-scrollbar">
                                     <button
                                         onClick={() => handleCategoryClick(null)}
                                         className={cn(

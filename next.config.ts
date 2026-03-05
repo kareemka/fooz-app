@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  transpilePackages: ['three', '@react-three/fiber', '@react-three/drei'],
+
 
   // Security Headers
   async headers() {
@@ -20,9 +22,9 @@ const nextConfig: NextConfig = {
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com",
               "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com data:",
-              "img-src 'self' data: blob: http://localhost:3000 https://api.fooz-gaming.com https://images.unsplash.com",
-              "connect-src 'self' http://localhost:3000 https://api.fooz-gaming.com",
-              "media-src 'self' blob: http://localhost:3000 https://api.fooz-gaming.com",
+              "img-src 'self' data: blob: http://localhost:3000 http://localhost:3001 https://api.fooz-gaming.com https://images.unsplash.com https://raw.githack.com",
+              "connect-src 'self' blob: http://localhost:3000 http://localhost:3001 https://api.fooz-gaming.com https://raw.githack.com https://cdn.jsdelivr.net",
+              "media-src 'self' blob: http://localhost:3000 http://localhost:3001 https://api.fooz-gaming.com",
               "worker-src 'self' blob:",
             ].join('; '),
           },
@@ -53,6 +55,9 @@ const nextConfig: NextConfig = {
   },
   output: 'standalone',
   outputFileTracingRoot: '../../',
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'framer-motion', 'swiper'],
+  },
 };
 
 export default nextConfig;

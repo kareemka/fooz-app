@@ -67,8 +67,8 @@ const HeroSlider = () => {
                                         fill
                                         sizes="100vw"
                                         className={styles.image}
-                                        priority
-                                        quality={90}
+                                        priority={banners.indexOf(banner) === 0}
+                                        quality={80}
                                     />
                                     <div className={styles.overlay} />
                                 </div>
@@ -87,8 +87,8 @@ const HeroSlider = () => {
                                         fill
                                         sizes="100vw"
                                         className={styles.image}
-                                        priority
-                                        quality={90}
+                                        priority={banners.indexOf(banner) === 0}
+                                        quality={80}
                                     />
                                     <div className={styles.overlay} />
                                 </div>
