@@ -20,7 +20,8 @@ const ProductsListingContent = () => {
     const [searchValue, setSearchValue] = useState(searchParams.get("search") || "");
     const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-    const activeCategorySlug = searchParams.get("category");
+    const categoryParam = searchParams.get("category");
+    const activeCategorySlug = categoryParam ? decodeURIComponent(categoryParam) : null;
     const searchQuery = searchParams.get("search") || "";
 
     const { data: categoryData } = useQuery<{ categories: { items: Category[] } }>(GET_CATEGORIES);

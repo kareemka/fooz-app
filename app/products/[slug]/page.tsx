@@ -15,7 +15,8 @@ export async function generateMetadata(
     { params }: Props,
     parent: ResolvingMetadata
 ): Promise<Metadata> {
-    const { slug } = await params;
+    const rawSlug = (await params).slug;
+    const slug = decodeURIComponent(rawSlug);
 
     const { data } = await getClient().query<{
         productBySlug: {
@@ -90,7 +91,8 @@ export async function generateMetadata(
 }
 
 export default async function ProductPage({ params }: Props) {
-    const { slug } = await params;
+    const rawSlug = (await params).slug;
+    const slug = decodeURIComponent(rawSlug);
 
     const { data } = await getClient().query<{
         productBySlug: {
