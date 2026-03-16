@@ -50,7 +50,8 @@ export async function generateMetadata(
                 const u = new URL(finalImageUrl);
                 const b = new URL(siteUrl);
                 u.protocol = b.protocol;
-                u.host = b.host;
+                u.hostname = b.hostname;
+                u.port = b.port; // This will strip port 3000/3001 if the siteUrl has no port
                 finalImageUrl = u.toString();
             } catch {
                 finalImageUrl = finalImageUrl
