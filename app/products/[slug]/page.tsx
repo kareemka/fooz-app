@@ -31,54 +31,52 @@ export async function generateMetadata(
     const product = data?.productBySlug;
 
     if (!product) {
-        return {
-            title: "Product Not Found",
-        };
+        return { title: "Product Not Found" };
     }
 
-    const previousImages = (await parent).openGraph?.images || [];
+    // Get the public-facing site URL
+    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://fooz-gaming.com").replace(/\/$/, "");
 
-    // 1. Get the base URL for the site (Public domain)
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://fooz-gaming.com";
-    
-    // 2. Resolve to a Public Absolute URL
-    // We want the DIRECT backend link to avoid Next.js image optimization (huge file sizes)
-    let finalImageUrl = product.mainImage ? getImageUrl(product.mainImage) : null;
-    
+    // Resolve the image to a DIRECT public URL (no Next.js optimization proxy)
+    let finalImageUrl: string | null = product.mainImage ? getImageUrl(product.mainImage) : null;
     if (finalImageUrl) {
-        // If it's a relative path, make it absolute using siteUrl
         if (!finalImageUrl.startsWith("http")) {
-            finalImageUrl = `${siteUrl.endsWith("/") ? siteUrl.slice(0, -1) : siteUrl}${finalImageUrl.startsWith("/") ? "" : "/"}${finalImageUrl}`;
-        } 
-        // If it's an internal server URL (localhost/127.0.0.1), force it to the public domain
-        else if (finalImageUrl.includes("localhost") || finalImageUrl.includes("127.0.0.1")) {
+            // Relative path → make absolute
+            finalImageUrl = `${siteUrl}${finalImageUrl.startsWith("/") ? "" : "/"}${finalImageUrl}`;
+        } else if (/localhost|127\.0\.0\.1/.test(finalImageUrl)) {
+            // Internal server URL → swap to public domain
             try {
-                const urlObj = new URL(finalImageUrl);
-                const baseObj = new URL(siteUrl);
-                urlObj.protocol = baseObj.protocol;
-                urlObj.host = baseObj.host;
-                finalImageUrl = urlObj.toString();
-            } catch (e) {
-                // Fallback string replacement
-                finalImageUrl = finalImageUrl.replace(/http:\/\/localhost(:\d+)?/g, siteUrl)
-                                          .replace(/http:\/\/127\.0\.0\.1(:\d+)?/g, siteUrl);
+                const u = new URL(finalImageUrl);
+                const b = new URL(siteUrl);
+                u.protocol = b.protocol;
+                u.host = b.host;
+                finalImageUrl = u.toString();
+            } catch {
+                finalImageUrl = finalImageUrl
+                    .replace(/http:\/\/localhost(:\d+)?/g, siteUrl)
+                    .replace(/http:\/\/127\.0\.0\.1(:\d+)?/g, siteUrl);
             }
         }
     }
 
+    // Build the image object list (no metadataBase → Next.js will NOT proxy through /_next/image)
+    const ogImages = finalImageUrl
+        ? [{ url: finalImageUrl, width: 1200, height: 630, alt: product.name }]
+        : [];
+
     return {
         title: product.name,
         description: product.description,
-        metadataBase: new URL(siteUrl),
+        // NOTE: intentionally NO metadataBase here – adding it causes Next.js to proxy
+        // the og:image through /_next/image?w=3840 which WhatsApp / Instagram reject.
         alternates: {
-            canonical: `/products/${slug}`,
+            canonical: `${siteUrl}/products/${slug}`,
         },
         openGraph: {
             title: product.name,
             description: product.description,
-            url: `/products/${slug}`,
-            // IMPORTANT: Passing plain string array to avoid Next.js auto-optimization routes
-            images: finalImageUrl ? [finalImageUrl] : [],
+            url: `${siteUrl}/products/${slug}`,
+            images: ogImages,
             type: "website",
             siteName: "Fooz Gaming",
         },
@@ -88,9 +86,6 @@ export async function generateMetadata(
             description: product.description,
             images: finalImageUrl ? [finalImageUrl] : [],
         },
-        facebook: {
-            appId: "123456789", // Placeholder to satisfy debugger warning
-        }
     };
 }
 
