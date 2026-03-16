@@ -8,11 +8,9 @@ import Container from "@/components/ui/Container";
 export default function Home() {
   return (
     <main className="min-h-screen bg-background relative overflow-hidden">
-      <div className="relative z-10 mt-48">
-        <Container>
-          <HeroSlider />
-        </Container>
-        {/* <Hero /> */}
+      {/* Full-width slider — outside Container */}
+      <div className="relative z-10 pt-40 md:pt-48">
+        <HeroSlider />
 
         <Categories />
 
