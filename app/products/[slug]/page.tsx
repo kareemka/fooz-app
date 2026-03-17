@@ -62,8 +62,11 @@ export async function generateMetadata(
     }
 
     // Build the image object list (no metadataBase → Next.js will NOT proxy through /_next/image)
-    const ogImages = finalImageUrl
-        ? [{ url: finalImageUrl, width: 1200, height: 630, alt: product.name }]
+    // Replace extension to point to generating -og.jpg version as requested by user
+    const ogPath = finalImageUrl ? finalImageUrl.replace(/(\.\w+)$/, '-og.jpg') : null;
+
+    const ogImages = ogPath
+        ? [{ url: ogPath, width: 1200, height: 630, alt: product.name }]
         : [];
 
     return {
@@ -86,7 +89,7 @@ export async function generateMetadata(
             card: "summary_large_image",
             title: product.name,
             description: product.description,
-            images: finalImageUrl ? [finalImageUrl] : [],
+            images: ogPath ? [ogPath] : [],
         },
     };
 }
