@@ -1,10 +1,57 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useQuery } from "@apollo/client/react";
 import { CURRENCY } from "@/lib/constants";
+import { useCart } from "@/lib/store";
+import { Product } from "@/lib/products";
+import { GET_PRODUCTS } from "@/lib/graphql/queries";
+import { cn, formatPrice } from "@/lib/utils";
 
 const PromoBanner = () => {
+    const { addItem } = useCart();
+    const [isAdding, setIsAdding] = useState(false);
+
+    // Fetch the target bundle from backend using a search query instead of a strict slug
+    const { data, loading } = useQuery<{ products: { items: Product[] } }>(GET_PRODUCTS, {
+        variables: { search: "حزم", take: 1 },
+        fetchPolicy: "cache-first",
+    });
+
+    const bundleProduct = data?.products?.items?.[0];
+
+    // Derived values for display
+    const discountValue = bundleProduct?.discountPercentage || 20;
+    const originalPrice = bundleProduct?.price || 2500;
+    const savedAmount = Math.round(originalPrice * (discountValue / 100));
+    const finalPrice = originalPrice - savedAmount;
+
+    const handleBuyBundle = () => {
+        setIsAdding(true);
+        
+        if (bundleProduct) {
+            // Map accessories to have 0 price so the bundle price remains exactly as displayed
+            // without adding individual accessory prices.
+            const freeAccessories = bundleProduct.accessories?.map(acc => ({
+                ...acc,
+                price: 0
+            }));
+            
+            addItem(bundleProduct as Product, 1, undefined, freeAccessories);
+        }
+        
+        setTimeout(() => {
+            setIsAdding(false);
+        }, 2000);
+    };
+
+    // If there is no bundle product in the database, don't show the banner at all
+    if (!loading && !bundleProduct) {
+        return null;
+    }
+
     return (
         <section className="relative overflow-hidden w-full" style={{ minHeight: "70vh" }}>
             {/* Deep layered background */}
@@ -67,20 +114,18 @@ const PromoBanner = () => {
 
                     {/* Description */}
                     <p className="text-gray-300 text-lg leading-relaxed max-w-xl">
-                        احصل على <strong className="text-white">خصم 20%</strong> عند شراء مكتب RGB وكرسي احترافي معاً. جهز غرفتك بالكامل بأقل سعر ممكن.
+                        احصل على <strong className="text-white">خصم {discountValue}%</strong> عند شراء مكتب RGB وكرسي احترافي معاً. جهز غرفتك بالكامل بأقل سعر ممكن.
                     </p>
 
                     {/* Stats row */}
                     <div className="flex items-center gap-8 text-center mt-2">
                         <div>
-                            <div className="text-3xl font-black text-white">20%</div>
+                            <div className="text-3xl font-black text-white">{discountValue}%</div>
                             <div className="text-xs text-gray-400 mt-0.5">خصم</div>
                         </div>
                         <div className="w-px h-12 bg-white/10" />
                         <div>
-                            <div className="text-3xl font-black text-white">500
-                                <span className="text-xl text-purple-400 mr-1">{CURRENCY.SYMBOL}</span>
-                            </div>
+                            <div className="text-3xl font-black text-white">{formatPrice(savedAmount)}</div>
                             <div className="text-xs text-gray-400 mt-0.5">توفير</div>
                         </div>
                         <div className="w-px h-12 bg-white/10" />
@@ -92,19 +137,34 @@ const PromoBanner = () => {
 
                     {/* CTA */}
                     <div className="flex flex-wrap gap-4 mt-4">
-                        <Link
-                            href="/products"
-                            className="group relative px-8 py-4 rounded-2xl font-bold text-white overflow-hidden transition-all duration-300 hover:scale-105"
-                            style={{ background: "linear-gradient(135deg, #B026FF, #FF007F)" }}
+                        <button
+                            onClick={handleBuyBundle}
+                            disabled={isAdding}
+                            className={cn(
+                                "group relative px-8 py-4 rounded-2xl font-bold text-white overflow-hidden transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2",
+                                isAdding ? "bg-green-500 scale-100" : ""
+                            )}
+                            style={{ background: isAdding ? "" : "linear-gradient(135deg, #B026FF, #FF007F)" }}
                         >
-                            <span className="relative z-10">استعرض الحزمة</span>
-                            <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </Link>
+                            {isAdding ? (
+                                <>
+                                    <span className="material-symbols-outlined text-[20px] animate-bounce">check_circle</span>
+                                    <span className="relative z-10">تمت الإضافة للسلة!</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span className="relative z-10">أضف الحزمة للسلة</span>
+                                    <span className="material-symbols-outlined text-[20px] relative z-10">shopping_bag</span>
+                                    <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </>
+                            )}
+                        </button>
                         <Link
-                            href="/contact"
-                            className="px-8 py-4 rounded-2xl font-bold text-white border border-white/20 bg-white/5 hover:bg-white/10 transition-all duration-300 hover:scale-105"
+                            href={bundleProduct ? `/products/${bundleProduct.slug || bundleProduct.id}` : "/products"}
+                            className="px-8 py-4 rounded-2xl font-bold text-white border border-white/20 bg-white/5 hover:bg-white/10 transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2"
                         >
-                            تواصل معنا
+                            <span className="material-symbols-outlined text-[20px]">visibility</span>
+                            استعراض الحزمة
                         </Link>
                     </div>
                 </motion.div>
@@ -150,28 +210,38 @@ const PromoBanner = () => {
                             </span>
                         </div>
 
-                        {/* Savings badge */}
-                        <div className="text-center px-8">
-                            <div className="text-xs font-bold text-gray-400 uppercase tracking-[0.2em] mb-2">وفر حتى</div>
+                        {/* Price Details */}
+                        <div className="text-center px-4 w-full flex flex-col items-center">
+                            {/* Original Price (Strikethrough) */}
+                            <div className="flex items-center gap-2 mb-1">
+                                <span className="text-sm font-bold text-gray-500 line-through">
+                                    {formatPrice(originalPrice)}
+                                </span>
+                                <span className="px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 text-[10px] font-bold border border-red-500/20">
+                                    -{discountValue}%
+                                </span>
+                            </div>
+
+                            {/* Final Price */}
                             <div
-                                className="text-6xl font-black"
+                                className="text-5xl lg:text-6xl font-black mt-1"
                                 style={{
                                     background: "linear-gradient(90deg, #fff, #B026FF)",
                                     WebkitBackgroundClip: "text",
                                     WebkitTextFillColor: "transparent",
+                                    lineHeight: "1.1"
                                 }}
                             >
-                                500
-                                <span className="text-3xl ml-1 text-cyan-400">{CURRENCY.SYMBOL}</span>
+                                {formatPrice(finalPrice)}
                             </div>
                         </div>
 
                         {/* Discount pill */}
                         <div
-                            className="px-6 py-2 rounded-full text-white text-sm font-bold"
+                            className="px-6 py-2 rounded-full text-white text-sm font-bold shadow-[0_0_20px_rgba(176,38,255,0.4)]"
                             style={{ background: "linear-gradient(90deg, #B026FF, #FF007F)" }}
                         >
-                            خصم 20% على الحزمة
+                            وفر {formatPrice(savedAmount)}
                         </div>
 
                         {/* Bottom bar */}

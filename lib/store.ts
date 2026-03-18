@@ -39,7 +39,12 @@ export const useCart = create<CartStore>()(
                     newItems[existingItemIndex].quantity += quantity;
                     set({ items: newItems });
                 } else {
-                    const accessoryPrice = selectedAccessories.reduce((sum, acc) => sum + acc.price, 0);
+                    const isBundle = product.name.toLocaleLowerCase().includes('حزم') || 
+                                     product.name.toLocaleLowerCase().includes('bundle') ||
+                                     product.name.toLocaleLowerCase().includes('package');
+                    const accessoryPrice = selectedAccessories.reduce((sum, acc) => {
+                        return sum + (isBundle ? 0 : (acc.price || 0));
+                    }, 0);
                     const basePrice = selectedSize?.price || product.price || 0;
 
                     // Apply discountPercentage to the base price

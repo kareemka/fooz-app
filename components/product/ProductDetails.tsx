@@ -125,7 +125,11 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
         edgeColors.length > 0 ? edgeColors[0]?.id : null
     );
     const [selectedSize, setSelectedSize] = useState(sizes.length > 0 ? sizes[0] : null);
-    const [selectedAccessories, setSelectedAccessories] = useState<string[]>([]);
+    const isBundle = useMemo(() => /حزم[ةه]/.test(product.name), [product.name]);
+
+    const [selectedAccessories, setSelectedAccessories] = useState<string[]>(
+        isBundle ? accessories.map(a => a.id) : []
+    );
 
     const hasDiscount = !!(product.discountPercentage && product.discountPercentage > 0);
 
@@ -139,8 +143,8 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
     }, [hasDiscount, basePrice, product.discountPercentage]);
 
     const accessoriesTotal = useMemo(
-        () => accessories.filter((a) => selectedAccessories.includes(a.id)).reduce((s, a) => s + a.price, 0),
-        [accessories, selectedAccessories]
+        () => isBundle ? 0 : accessories.filter((a) => selectedAccessories.includes(a.id)).reduce((s, a) => s + a.price, 0),
+        [accessories, selectedAccessories, isBundle]
     );
 
     const totalPrice = finalPrice + accessoriesTotal;
@@ -157,12 +161,16 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
 
     const handleAddToCart = useCallback(() => {
         setIsAddingToCart(true);
-        const selectedAccObjects = accessories.filter((a) => selectedAccessories.includes(a.id));
+        // For bundles, we always send all accessories as free
+        const selectedAccObjects = isBundle 
+            ? accessories.map(acc => ({ ...acc, price: 0 }))
+            : accessories.filter((a) => selectedAccessories.includes(a.id));
+            
         const selectedSurfaceColorObject = surfaceColors.find((c) => c.id === activeSurfaceColor);
         const selectedEdgeColorObject = edgeColors.find((c) => c.id === activeEdgeColor);
         addItem(product, quantity, selectedSize || undefined, selectedAccObjects, selectedSurfaceColorObject, selectedEdgeColorObject);
         setTimeout(() => setIsAddingToCart(false), 2000);
-    }, [accessories, activeSurfaceColor, activeEdgeColor, addItem, edgeColors, surfaceColors, product, quantity, selectedAccessories, selectedSize]);
+    }, [accessories, activeSurfaceColor, activeEdgeColor, addItem, edgeColors, surfaceColors, product, quantity, selectedAccessories, selectedSize, isBundle]);
 
     const prevImage = () => setActiveImageIndex((p) => (p === 0 ? images.length - 1 : p - 1));
     const nextImage = () => setActiveImageIndex((p) => (p === images.length - 1 ? 0 : p + 1));
@@ -375,9 +383,11 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                                     <div className="p-5 bg-gradient-to-br from-white/5 to-white/[0.02] rounded-2xl border border-white/10">
                                         <div className="flex items-center justify-between mb-4">
                                             <span className="px-2 py-1 bg-accent/10 text-accent text-xs font-bold rounded-full border border-accent/20">
-                                                {selectedAccessories.length} محدد
+                                                {isBundle ? "مشمول بالكامل" : `${selectedAccessories.length} محدد`}
                                             </span>
-                                            <h3 className="text-base font-bold text-white">أضف الملحقات</h3>
+                                            <h3 className="text-base font-bold text-white">
+                                                {isBundle ? "المحتويات المتضمنة" : "أضف الملحقات"}
+                                            </h3>
                                         </div>
                                         <div className="flex flex-col gap-3">
                                             {accessories.map((accessory) => {
@@ -385,13 +395,13 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                                                 return (
                                                     <motion.label
                                                         key={accessory.id}
-                                                        whileHover={{ scale: 1.01 }}
-                                                        whileTap={{ scale: 0.99 }}
+                                                        whileHover={isBundle ? {} : { scale: 1.01 }}
+                                                        whileTap={isBundle ? {} : { scale: 0.99 }}
                                                         className={cn(
-                                                            "flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all",
-                                                            isSelected
-                                                                ? "border-accent bg-accent/10"
-                                                                : "border-white/10 bg-white/5 hover:border-accent/50"
+                                                            "flex items-center gap-3 p-3 rounded-xl border-2 transition-all",
+                                                            isBundle ? "border-accent/40 bg-accent/5 cursor-default" : 
+                                                            isSelected ? "border-accent bg-accent/10 cursor-pointer" : 
+                                                            "border-white/10 bg-white/5 hover:border-accent/50 cursor-pointer"
                                                         )}
                                                     >
                                                         {accessory.image && (
@@ -400,19 +410,29 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                                                             </div>
                                                         )}
                                                         <div className="flex-1">
-                                                            <p className="text-sm font-bold text-white mb-1">{accessory.name}</p>
-                                                            <p className="text-accent font-black">+{formatPrice(accessory.price)}</p>
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <p className="text-sm font-bold text-white">{accessory.name}</p>
+                                                                {isBundle && (
+                                                                    <span className="text-[10px] bg-accent text-black px-1.5 py-0.5 rounded font-black uppercase">مشمول</span>
+                                                                )}
+                                                            </div>
+                                                            <p className="text-accent font-black">
+                                                                {isBundle ? "مجاني مع الحزمة" : `+${formatPrice(accessory.price)}`}
+                                                            </p>
                                                         </div>
                                                         <div className={cn(
                                                             "w-6 h-6 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all",
-                                                            isSelected ? "bg-accent border-accent" : "border-white/30 bg-white/5"
+                                                            isSelected ? "bg-accent border-accent" : "border-white/30 bg-white/5",
+                                                            isBundle && "opacity-50"
                                                         )}>
                                                             {isSelected && <span className="material-symbols-outlined text-[16px] text-black">check</span>}
                                                         </div>
                                                         <input
                                                             type="checkbox"
+                                                            disabled={isBundle}
                                                             checked={isSelected}
                                                             onChange={(e) => {
+                                                                if (isBundle) return;
                                                                 if (e.target.checked) {
                                                                     setSelectedAccessories((prev) => [...prev, accessory.id]);
                                                                 } else {
