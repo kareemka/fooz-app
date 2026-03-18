@@ -4,11 +4,51 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useQuery } from "@apollo/client/react";
-import { CURRENCY } from "@/lib/constants";
 import { useCart } from "@/lib/store";
 import { Product } from "@/lib/products";
 import { GET_PRODUCTS } from "@/lib/graphql/queries";
+import Skeleton from "@/components/ui/Skeleton";
 import { cn, formatPrice } from "@/lib/utils";
+
+const PromoBannerSkeleton = () => {
+    return (
+        <section className="relative overflow-hidden w-full" style={{ minHeight: "70vh" }}>
+            <div className="absolute inset-0 bg-gradient-to-br from-[#0d0020] via-[#160830] to-[#04101e]" />
+            <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12 max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20 py-20 lg:py-0 min-h-[70vh]">
+                <div className="flex flex-col items-start gap-6 max-w-2xl w-full order-2 lg:order-1">
+                    <Skeleton className="h-8 w-32 rounded-full" />
+                    <div className="space-y-3 w-full">
+                        <Skeleton className="h-16 w-3/4 rounded-2xl" />
+                        <Skeleton className="h-16 w-1/2 rounded-2xl" />
+                    </div>
+                    <div className="space-y-2 w-full">
+                        <Skeleton className="h-4 w-full rounded-full" />
+                        <Skeleton className="h-4 w-5/6 rounded-full" />
+                    </div>
+                    <div className="flex items-center gap-8 mt-2">
+                        <div className="space-y-2 text-center">
+                            <Skeleton className="h-8 w-16 rounded-lg" />
+                            <Skeleton className="h-3 w-10 rounded-full mx-auto" />
+                        </div>
+                        <div className="w-px h-12 bg-white/10" />
+                        <div className="space-y-2 text-center">
+                            <Skeleton className="h-8 w-16 rounded-lg" />
+                            <Skeleton className="h-3 w-10 rounded-full mx-auto" />
+                        </div>
+                    </div>
+                    <div className="flex flex-wrap gap-4 mt-4">
+                        <Skeleton className="h-14 w-44 rounded-2xl" />
+                        <Skeleton className="h-14 w-44 rounded-2xl" />
+                    </div>
+                </div>
+                <div className="relative flex-shrink-0 order-1 lg:order-2">
+                    <Skeleton className="w-72 h-80 lg:w-80 lg:h-96 rounded-3xl" />
+                </div>
+            </div>
+            <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-[#0A0A1A] to-transparent" />
+        </section>
+    );
+};
 
 const PromoBanner = () => {
     const { addItem } = useCart();
@@ -31,7 +71,7 @@ const PromoBanner = () => {
 
     const handleBuyBundle = () => {
         setIsAdding(true);
-        
+
         if (bundleProduct) {
             // Map accessories to have 0 price so the bundle price remains exactly as displayed
             // without adding individual accessory prices.
@@ -39,17 +79,22 @@ const PromoBanner = () => {
                 ...acc,
                 price: 0
             }));
-            
+
             addItem(bundleProduct as Product, 1, undefined, freeAccessories);
         }
-        
+
         setTimeout(() => {
             setIsAdding(false);
         }, 2000);
     };
 
+    // If loading, show skeleton
+    if (loading) {
+        return <PromoBannerSkeleton />;
+    }
+
     // If there is no bundle product in the database, or it is out of stock, don't show the banner at all
-    if (!loading && (!bundleProduct || bundleProduct.stock <= 0)) {
+    if (!bundleProduct || bundleProduct.stock <= 0) {
         return null;
     }
 
@@ -100,25 +145,43 @@ const PromoBanner = () => {
 
                     {/* Headline */}
                     <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight">
-                        حزمة السيت أب{" "}
-                        <span
-                            className="relative inline-block"
-                            style={{
-                                background: "linear-gradient(90deg, #B026FF, #00F2FF)",
-                                WebkitBackgroundClip: "text",
-                                WebkitTextFillColor: "transparent",
-                            }}
-                        >
-                            الاحترافي
-                        </span>
+                        {bundleProduct?.name ? (
+                            <>
+                                {bundleProduct.name.split(" ").slice(0, -1).join(" ")}{" "}
+                                <span
+                                    className="relative inline-block"
+                                    style={{
+                                        background: "linear-gradient(90deg, #B026FF, #00F2FF)",
+                                        WebkitBackgroundClip: "text",
+                                        WebkitTextFillColor: "transparent",
+                                    }}
+                                >
+                                    {bundleProduct.name.split(" ").slice(-1)}
+                                </span>
+                            </>
+                        ) : (
+                            <>
+                                حزمة السيت أب{" "}
+                                <span
+                                    className="relative inline-block"
+                                    style={{
+                                        background: "linear-gradient(90deg, #B026FF, #00F2FF)",
+                                        WebkitBackgroundClip: "text",
+                                        WebkitTextFillColor: "transparent",
+                                    }}
+                                >
+                                    الاحترافي
+                                </span>
+                            </>
+                        )}
                     </h2>
 
                     {/* Description */}
                     <p className="text-gray-300 text-lg leading-relaxed max-w-xl text-pretty">
                         {hasDiscount ? (
-                            <>احصل على <strong className="text-white">خصم {discountValue}%</strong> عند شراء مكتب RGB وكرسي احترافي معاً. جهز غرفتك بالكامل بأقل سعر ممكن.</>
+                            <>احصل على <strong className="text-white">{bundleProduct?.name}</strong> بخصم خاص <strong className="text-white">{discountValue}%</strong>. {bundleProduct?.description || "وفر الكثير عند شراء هذه الحزمة المتكاملة."}</>
                         ) : (
-                            <>احصل على أفضل تجربة مع حزمة مكتب RGB وكرسي احترافي معاً. جهز غرفتك بالكامل بمواصفات احترافية.</>
+                            <>{bundleProduct?.description || `احصل على أفضل تجربة مع ${bundleProduct?.name}.`}</>
                         )}
                     </p>
 

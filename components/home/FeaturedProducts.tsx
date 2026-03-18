@@ -75,11 +75,18 @@ const FeaturedProducts = ({ title, category, take = 8, sortBy }: FeaturedProduct
                     )}
 
                     {isLoading ? (
-                        Array.from({ length: 4 }).map((_, index) => (
-                            <div key={index} className="space-y-4">
-                                <Skeleton className="w-full aspect-[3/4] rounded-xl" />
-                                <Skeleton className="h-6 w-3/4" />
-                                <Skeleton className="h-4 w-1/2" />
+                        Array.from({ length: take }).map((_, index) => (
+                            <div key={index} className="flex flex-col bg-card-bg rounded-xl md:rounded-2xl border border-white/5 overflow-hidden">
+                                <Skeleton className="w-full aspect-[4/3]" />
+                                <div className="p-3 md:p-4 space-y-3">
+                                    <Skeleton className="h-3 w-1/4 rounded-full" />
+                                    <Skeleton className="h-6 w-3/4 rounded-lg" />
+                                    <Skeleton className="h-3 w-1/2 rounded-full" />
+                                    <div className="pt-3 border-t border-white/5 flex justify-between items-end">
+                                        <Skeleton className="h-8 w-24 rounded-lg" />
+                                        <Skeleton className="h-5 w-16 rounded-md" />
+                                    </div>
+                                </div>
                             </div>
                         ))
                     ) : (

@@ -3,7 +3,6 @@ import HeroSlider from "@/components/home/HeroSlider";
 import Categories from "@/components/home/Categories";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
 import PromoBanner from "@/components/home/PromoBanner";
-import Container from "@/components/ui/Container";
 
 export default function Home() {
   return (

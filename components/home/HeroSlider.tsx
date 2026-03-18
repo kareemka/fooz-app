@@ -21,11 +21,27 @@ interface Banner {
     order: number;
 }
 
+import Skeleton from "@/components/ui/Skeleton";
+
+const HeroSliderSkeleton = () => {
+    return (
+        <div className={styles.heroSlider}>
+            <div className={styles.swiper}>
+                <Skeleton className="w-full h-full rounded-none" />
+            </div>
+        </div>
+    );
+};
+
 const HeroSlider = () => {
     const { data, loading } = useQuery<{ activeBanners: Banner[] }>(GET_ACTIVE_BANNERS);
     const banners = data?.activeBanners || [];
 
-    if (loading || banners.length === 0) {
+    if (loading) {
+        return <HeroSliderSkeleton />;
+    }
+
+    if (banners.length === 0) {
         return null;
     }
 
