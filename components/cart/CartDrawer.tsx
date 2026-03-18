@@ -80,20 +80,20 @@ const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
                                                     <h3 className="text-white font-bold truncate">{item.name}</h3>
                                                     {item.selectedSurfaceColor && (
                                                         <p className="text-gray-400 text-xs flex items-center gap-1.5 justify-end">
-                                                            <span className="text-gray-200">{item.selectedSurfaceColor.name}</span>
                                                             <span className="shrink-0">لون السطح:</span>
+                                                            <span className="text-gray-200">{item.selectedSurfaceColor.name}</span>
                                                         </p>
                                                     )}
                                                     {item.selectedEdgeColor && (
                                                         <p className="text-gray-400 text-xs flex items-center gap-1.5 justify-end mt-0.5">
-                                                            <span className="text-gray-200">{item.selectedEdgeColor.name}</span>
                                                             <span className="shrink-0">لون الأطراف:</span>
+                                                            <span className="text-gray-200">{item.selectedEdgeColor.name}</span>
                                                         </p>
                                                     )}
                                                     {item.selectedSize && (
                                                         <p className="text-gray-400 text-xs flex items-center gap-1.5 justify-end mt-0.5">
-                                                            <span className="text-gray-200">{item.selectedSize.name}</span>
                                                             <span className="shrink-0">القياس:</span>
+                                                            <span className="text-gray-200">{item.selectedSize.name}</span>
                                                         </p>
                                                     )}
                                                 </div>
@@ -141,7 +141,7 @@ const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
 
                                         {/* Display selected accessories */}
                                         {item.selectedAccessories && item.selectedAccessories.length > 0 && (
-                                            <div className="pt-2 border-t border-white/5 flex flex-wrap gap-2 justify-end">
+                                            <div className="pt-2 border-t border-white/5 flex flex-wrap gap-2 justify-start">
                                                 {item.selectedAccessories.map((acc, accIdx) => (
                                                     <span key={`${item.cartItemId}-${acc.id}-${accIdx}`} className="text-[10px] bg-accent/10 border border-accent/20 text-accent px-2 py-0.5 rounded">
                                                         + {acc.name}
@@ -158,8 +158,8 @@ const CartDrawer = ({ isOpen, onClose }: CartDrawerProps) => {
                         {items.length > 0 && (
                             <div className="p-6 border-t border-white/5 bg-black/40 space-y-4 pb-10">
                                 <div className="flex items-center justify-between text-right text-xl font-bold">
-                                    <span className="text-white">{getTotal().toLocaleString()} {CURRENCY.SYMBOL}</span>
                                     <span className="text-gray-400">الإجمالي</span>
+                                    <span className="text-white">{getTotal().toLocaleString()} {CURRENCY.SYMBOL}</span>
                                 </div>
                                 <p className="text-gray-500 text-xs text-center italic text-pretty">شامل ضريبة القيمة المضافة والشحن</p>
                                 <Link href="/checkout" onClick={onClose} className="block">

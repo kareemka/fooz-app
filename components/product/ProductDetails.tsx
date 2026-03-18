@@ -162,10 +162,10 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
     const handleAddToCart = useCallback(() => {
         setIsAddingToCart(true);
         // For bundles, we always send all accessories as free
-        const selectedAccObjects = isBundle 
+        const selectedAccObjects = isBundle
             ? accessories.map(acc => ({ ...acc, price: 0 }))
             : accessories.filter((a) => selectedAccessories.includes(a.id));
-            
+
         const selectedSurfaceColorObject = surfaceColors.find((c) => c.id === activeSurfaceColor);
         const selectedEdgeColorObject = edgeColors.find((c) => c.id === activeEdgeColor);
         addItem(product, quantity, selectedSize || undefined, selectedAccObjects, selectedSurfaceColorObject, selectedEdgeColorObject);
@@ -222,6 +222,13 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                                 {/* Price */}
                                 <div className="p-5 bg-gradient-to-br from-white/5 to-white/[0.02] rounded-2xl border border-white/10">
                                     <div className="flex items-center justify-between">
+
+                                        <div className="flex flex-col items-end gap-1">
+                                            {hasDiscount && (
+                                                <span className="text-sm text-gray-500 line-through">{formatPrice(basePrice)}</span>
+                                            )}
+                                            <span className="text-3xl font-black text-primary">{formatPrice(finalPrice)}</span>
+                                        </div>
                                         <div>
                                             {hasDiscount && (
                                                 <motion.span
@@ -232,12 +239,6 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                                                     وفّر {discountDisplay}٪
                                                 </motion.span>
                                             )}
-                                        </div>
-                                        <div className="flex flex-col items-end gap-1">
-                                            {hasDiscount && (
-                                                <span className="text-sm text-gray-500 line-through">{formatPrice(basePrice)}</span>
-                                            )}
-                                            <span className="text-3xl font-black text-primary">{formatPrice(finalPrice)}</span>
                                         </div>
                                     </div>
 
@@ -399,9 +400,9 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
                                                         whileTap={isBundle ? {} : { scale: 0.99 }}
                                                         className={cn(
                                                             "flex items-center gap-3 p-3 rounded-xl border-2 transition-all",
-                                                            isBundle ? "border-accent/40 bg-accent/5 cursor-default" : 
-                                                            isSelected ? "border-accent bg-accent/10 cursor-pointer" : 
-                                                            "border-white/10 bg-white/5 hover:border-accent/50 cursor-pointer"
+                                                            isBundle ? "border-accent/40 bg-accent/5 cursor-default" :
+                                                                isSelected ? "border-accent bg-accent/10 cursor-pointer" :
+                                                                    "border-white/10 bg-white/5 hover:border-accent/50 cursor-pointer"
                                                         )}
                                                     >
                                                         {accessory.image && (

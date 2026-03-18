@@ -21,12 +21,13 @@ const PromoBanner = () => {
     });
 
     const bundleProduct = data?.products?.items?.[0];
+    const hasDiscount = !!(bundleProduct?.discountPercentage && bundleProduct?.discountPercentage > 0);
 
     // Derived values for display
-    const discountValue = bundleProduct?.discountPercentage || 20;
-    const originalPrice = bundleProduct?.price || 2500;
-    const savedAmount = Math.round(originalPrice * (discountValue / 100));
-    const finalPrice = originalPrice - savedAmount;
+    const discountValue = bundleProduct?.discountPercentage || 0;
+    const originalPrice = bundleProduct?.price || 0;
+    const savedAmount = hasDiscount ? Math.round(originalPrice * (discountValue / 100)) : 0;
+    const finalPrice = hasDiscount ? (originalPrice - savedAmount) : originalPrice;
 
     const handleBuyBundle = () => {
         setIsAdding(true);
@@ -47,8 +48,8 @@ const PromoBanner = () => {
         }, 2000);
     };
 
-    // If there is no bundle product in the database, don't show the banner at all
-    if (!loading && !bundleProduct) {
+    // If there is no bundle product in the database, or it is out of stock, don't show the banner at all
+    if (!loading && (!bundleProduct || bundleProduct.stock <= 0)) {
         return null;
     }
 
@@ -113,22 +114,30 @@ const PromoBanner = () => {
                     </h2>
 
                     {/* Description */}
-                    <p className="text-gray-300 text-lg leading-relaxed max-w-xl">
-                        احصل على <strong className="text-white">خصم {discountValue}%</strong> عند شراء مكتب RGB وكرسي احترافي معاً. جهز غرفتك بالكامل بأقل سعر ممكن.
+                    <p className="text-gray-300 text-lg leading-relaxed max-w-xl text-pretty">
+                        {hasDiscount ? (
+                            <>احصل على <strong className="text-white">خصم {discountValue}%</strong> عند شراء مكتب RGB وكرسي احترافي معاً. جهز غرفتك بالكامل بأقل سعر ممكن.</>
+                        ) : (
+                            <>احصل على أفضل تجربة مع حزمة مكتب RGB وكرسي احترافي معاً. جهز غرفتك بالكامل بمواصفات احترافية.</>
+                        )}
                     </p>
 
                     {/* Stats row */}
                     <div className="flex items-center gap-8 text-center mt-2">
-                        <div>
-                            <div className="text-3xl font-black text-white">{discountValue}%</div>
-                            <div className="text-xs text-gray-400 mt-0.5">خصم</div>
-                        </div>
-                        <div className="w-px h-12 bg-white/10" />
-                        <div>
-                            <div className="text-3xl font-black text-white">{formatPrice(savedAmount)}</div>
-                            <div className="text-xs text-gray-400 mt-0.5">توفير</div>
-                        </div>
-                        <div className="w-px h-12 bg-white/10" />
+                        {hasDiscount && (
+                            <>
+                                <div>
+                                    <div className="text-3xl font-black text-white">{discountValue}%</div>
+                                    <div className="text-xs text-gray-400 mt-0.5">خصم</div>
+                                </div>
+                                <div className="w-px h-12 bg-white/10" />
+                                <div>
+                                    <div className="text-3xl font-black text-white">{formatPrice(savedAmount)}</div>
+                                    <div className="text-xs text-gray-400 mt-0.5">توفير</div>
+                                </div>
+                                <div className="w-px h-12 bg-white/10" />
+                            </>
+                        )}
                         <div>
                             <div className="text-3xl font-black text-white">∞</div>
                             <div className="text-xs text-gray-400 mt-0.5">جودة</div>
@@ -213,14 +222,16 @@ const PromoBanner = () => {
                         {/* Price Details */}
                         <div className="text-center px-4 w-full flex flex-col items-center">
                             {/* Original Price (Strikethrough) */}
-                            <div className="flex items-center gap-2 mb-1">
-                                <span className="text-sm font-bold text-gray-500 line-through">
-                                    {formatPrice(originalPrice)}
-                                </span>
-                                <span className="px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 text-[10px] font-bold border border-red-500/20">
-                                    -{discountValue}%
-                                </span>
-                            </div>
+                            {hasDiscount && (
+                                <div className="flex items-center gap-2 mb-1">
+                                    <span className="text-sm font-bold text-gray-500 line-through">
+                                        {formatPrice(originalPrice)}
+                                    </span>
+                                    <span className="px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 text-[10px] font-bold border border-red-500/20">
+                                        -{discountValue}%
+                                    </span>
+                                </div>
+                            )}
 
                             {/* Final Price */}
                             <div
@@ -237,12 +248,14 @@ const PromoBanner = () => {
                         </div>
 
                         {/* Discount pill */}
-                        <div
-                            className="px-6 py-2 rounded-full text-white text-sm font-bold shadow-[0_0_20px_rgba(176,38,255,0.4)]"
-                            style={{ background: "linear-gradient(90deg, #B026FF, #FF007F)" }}
-                        >
-                            وفر {formatPrice(savedAmount)}
-                        </div>
+                        {hasDiscount && (
+                            <div
+                                className="px-6 py-2 rounded-full text-white text-sm font-bold shadow-[0_0_20px_rgba(176,38,255,0.4)]"
+                                style={{ background: "linear-gradient(90deg, #B026FF, #FF007F)" }}
+                            >
+                                وفر {formatPrice(savedAmount)}
+                            </div>
+                        )}
 
                         {/* Bottom bar */}
                         <div className="absolute bottom-0 inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent" />
