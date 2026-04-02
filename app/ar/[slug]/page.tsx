@@ -17,7 +17,8 @@ const DynamicARLauncher = dynamic(() => import("@/components/ar/ARLauncher"), {
 });
 
 export default function ARViewerPage({ params }: { params: Promise<{ slug: string }> }) {
-    const { slug } = use(params);
+    const { slug: rawSlug } = use(params);
+    const slug = decodeURIComponent(rawSlug);
     const [isMobile, setIsMobile] = useState<boolean | null>(null);
     const [currentUrl, setCurrentUrl] = useState("");
     const [mounted, setMounted] = useState(false);
